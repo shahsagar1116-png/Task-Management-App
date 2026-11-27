@@ -253,3 +253,14 @@ Client PAN, GSTIN and contact data is confidential, so access control and backup
 ## 10. Future scope (not for v1)
 
 WhatsApp Business API, client portal for document upload, billing and timesheets, DSC register, multi-firm subscription version.
+
+## 11. Notes for working in this repository
+
+- **Run locally:** copy `.env.example` to `.env.local`, fill in the Supabase values, then `npm install` and `npm run dev`.
+- **Checks before every commit:** `npm run lint`, `npm run typecheck`, `npm run test:db`, `npm run build`.
+- **Database changes** go in a new numbered file in `supabase/migrations/` (never edit one that has already been run). The owner runs each new file once in the Supabase SQL Editor, so tell him exactly which file to run. Add tests for new rules to `supabase/tests/rls.test.mjs` (runs on an in-memory Postgres, no Supabase needed).
+- **Supabase clients:** `src/lib/supabase/server.ts` acts as the signed-in user (RLS applies) and is the default. `src/lib/supabase/admin.ts` uses the secret key and bypasses RLS: use it only after checking the role in code, and only for Auth admin work such as creating logins.
+- **Roles in code:** `src/lib/session.ts` (`requireSession`) gives the signed-in user and role. Pages still check the role so users see a clear "Not allowed" message, but the database is what actually enforces it.
+- **Dates and amounts:** use `formatDate` and `formatAmount` from `src/lib/format.ts`.
+- **Session length:** `src/middleware.ts` signs users out 12 hours after they signed in.
+- **Phase status:** Phase 1 (setup, login, roles) built. Next: Phase 2, client master and Excel import.
